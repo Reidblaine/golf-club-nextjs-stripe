@@ -1,0 +1,29 @@
+require('dotenv').config();
+const Stripe = require('stripe');
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+
+async function createProducts() {
+  try {
+    const product = await stripe.products.create({ name: 'Golf Pro Membership' });
+    const monthly = await stripe.prices.create({
+      unit_amount: 2000, // $20.00
+      currency: 'usd',
+      recurring: { interval: 'month' },
+      product: product.id,
+    });
+    const yearly = await stripe.prices.create({
+      unit_amount: 20000, // $200.00
+      currency: 'usd',
+      recurring: { interval: 'year' },
+      product: product.id,
+    });
+    console.log('Product:', product.id);
+    console.log('Monthly Price:', monthly.id);
+    console.log('Yearly Price:', yearly.id);
+  } catch (err) {
+    console.error('Error creating products/prices:', err.message);
+  }
+}
+
+createProducts();
+
